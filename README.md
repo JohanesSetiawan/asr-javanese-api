@@ -46,6 +46,12 @@ Paste the link that appears in the terminal to the `index.html` file, in the:
 url: "<FLASK_API>/transcribe", // Flask server API endpoint variable.
 ```
 
+and the endpoint will be:
+
+```
+/transcribe
+```
+
 ### 6. Open the `index.html` file
 
 ### 7. Upload the audio file
