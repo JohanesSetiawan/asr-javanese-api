@@ -34,13 +34,9 @@ if you using local machine.
 python api.py
 ```
 
-### 4. Open the link
+### 4. Paste folder `webui` to XAMPP or Laragon
 
-Open the link that appears in the terminal. The link will be used to access the API.
-
-### 5. Paste the link to the `index.html` file
-
-Paste the link that appears in the terminal to the `index.html` file, in the:
+Paste the API link that appears in the terminal to the `transcribe.php` file, in the:
 
 ```javascript
 url: "<FLASK_API>/transcribe", // Flask server API endpoint variable.
@@ -52,7 +48,7 @@ and the endpoint will be:
 /transcribe
 ```
 
-### 6. Open the `index.html` file
+### 6. Open the webui
 
 ### 7. Upload the audio file
 
