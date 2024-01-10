@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jawa Automatic Speech Recognition | JAWIR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <style>
@@ -47,6 +48,37 @@
             font-size: 3.5rem;
         }
     }
+
+    .box {
+        outline: 2px dashed white;
+        height: 300px;
+        border-radius: 10px;
+    }
+
+    .box.is-dragover {
+        background-color: grey;
+    }
+
+    .box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .box label strong {
+        text-decoration: underline;
+        color: #0d6efd;
+        cursor: pointer;
+    }
+
+    .box label strong:hover {
+        color: blueviolet
+    }
+
+    .box input {
+        display: none;
+    }
 </style>
 
 <body>
@@ -59,16 +91,32 @@
             <div class="row g-5">
                 <div class="col-md-6">
                     <h2>Transcribe</h2>
-                    <p>dmfido</p>
+                    <div class="box my-5">
+                        <label>
+                            <strong>Choose a file</strong>
+                            <span>or drag it here.</span>
+                            <input class="box__file form-control" type="file" name="file" id='audioInput' />
+                        </label>
+                        <div class="file-list"></div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary btn-lg" onclick="transcribe()">Transcribe</button>
+                    </div>
+                    <div class="my-3">
+                        <audio class="my-3" controls src="<?php echo $target_file; ?>"></audio>
+                    </div>
+
+                    <div class="show-alert"></div>
+
+                    <div class="mb-5">
+                        <h2>Hasil Transcribe dari audio</h2>
+                        <div id="result" class="my-3"></div>
+                    </div>
+
                     <div class="mb-5">
                         <h2>Kembali ke home</h2>
                         <button class="btn btn-primary btn-lg px-4 mt-2" onclick="backToIndex()">Back</button>
                     </div>
-                </div>
-
-
-                <div class="col-md-6">
-                    <p>Hasil Transcribe dari audio</p>
                 </div>
             </div>
         </main>
@@ -81,8 +129,102 @@
         function backToIndex() {
             window.location.href = './index.php';
         }
+
+        const box = document.querySelector('.box');
+        const fileInput = document.querySelector('[name="file"]');
+        const selectButton = document.querySelector('label strong');
+        const fileList = document.querySelector('.file-list');
+        const showAlert = document.querySelector('.show-alert');
+
+        let droppedFiles = [];
+
+        ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach(event => box.addEventListener(event, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }), false);
+
+        ['dragover', 'dragenter'].forEach(event => box.addEventListener(event, function(e) {
+            box.classList.add('is-dragover');
+        }), false);
+
+        ['dragleave', 'dragend', 'drop'].forEach(event => box.addEventListener(event, function(e) {
+            box.classList.remove('is-dragover');
+        }), false);
+
+        box.addEventListener('drop', function(e) {
+            droppedFiles = e.dataTransfer.files;
+            fileInput.files = droppedFiles;
+            updateFileList();
+        }, false);
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            const file = fileInput.files[0];
+            if (file) {
+                fileList.innerHTML = `<p>Selected file: ${file.name}</p>`;
+            } else {
+                fileList.innerHTML = '';
+            }
+        }
+
+        function transcribe() {
+            var audioInput = document.getElementById("audioInput");
+            var file = audioInput.files[0];
+
+            if (!file) {
+                alert("Please select an audio file.");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("audio", file);
+
+            var audioElement = document.querySelector("audio");
+            audioElement.src = URL.createObjectURL(file);
+
+            $.ajax({
+                url: "http://localhost:5000/transcribe", // Flask server API endpoint
+                type: "POST", // HTTP method
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log('success')
+                    updateAlert()
+                    $("#result").text("Transcription: " + data.transcription.transcription); // Display transcription
+                },
+                error: function(error) {
+                    console.log("Error:", error);
+                    alert("Error transcribing audio.");
+                    updateAlertError()
+                },
+            });
+        }
+
+        function updateAlert() {
+            const file = fileInput.files[0];
+            if (file) {
+                showAlert.innerHTML = `<div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                Upload successful! You just uploaded this file: ${file.name}<br>
+                <div>
+                `;
+            } else {
+                showAlert.innerHTML = '';
+            }
+        }
+
+        function updateAlertError() {
+            showAlert.innerHTML = `<div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                Upload successful! You just uploaded this file: ${file.name}<br>
+                <div>
+                `;
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
 </body>
 
 </html>
