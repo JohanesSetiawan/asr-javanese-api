@@ -105,7 +105,7 @@
                     </div>
                     <div class="my-3">
                         <p><b>Preview Audio:</b></p>
-                        <audio class="my-3 mb-5" controls src="<?php echo $target_file; ?>"></audio>
+                        <audio class="my-3 mb-5" controls></audio>
                     </div>
 
                     <div class="mb-5">
@@ -186,18 +186,16 @@
             audioElement.src = URL.createObjectURL(file);
 
             $.ajax({
-                url: "https://e069-34-105-104-154.ngrok-free.app/transcribe", // Flask server API endpoint
+                url: "https://4cf6-34-23-100-179.ngrok-free.app/transcribe", // Flask server API endpoint
                 type: "POST", // HTTP method
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(data) {
-                    console.log('success')
                     updateAlert()
                     $("#result").text("Transcription: " + data.transcription.transcription); // Display transcription
                 },
                 error: function(error) {
-                    console.log("Error:", error);
                     alert("Error transcribing audio.");
                     updateAlertError()
                 },
@@ -220,7 +218,7 @@
         function updateAlertError() {
             showAlert.innerHTML = `<div class="alert alert-danger alert-dismissible" role="alert">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                Upload successful! You just uploaded this file: ${file.name}<br>
+                Upload failed! file: ${file.name}<br>
                 <div>
                 `;
         }
